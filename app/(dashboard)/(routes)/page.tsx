@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <div>
       <UserButton afterSignOutUrl="/" />
-      Hello, {user.lastName} welcome to Learn.io
+      Hello, {user.firstName} welcome to Learn.io
       januh
     </div>
   );
