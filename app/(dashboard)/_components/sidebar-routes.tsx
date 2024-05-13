@@ -19,7 +19,7 @@ const guestRoutes = [
 
 const teacherRoutes = [
     {
-        icon: "Listen",
+        icon: "List",
         label: "Courses",
         href: "/teacher/courses",
     },

@@ -1,5 +1,5 @@
 "use client"
-// SidebarItem.tsx
+
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Icon, { IconNames } from "./icon"; // Import Icon and IconNames
