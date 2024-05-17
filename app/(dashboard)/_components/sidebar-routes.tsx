@@ -6,7 +6,7 @@ import Lucide from 'lucide-react';
 
 const guestRoutes = [
     {
-        icon: "Layout",
+        icon: "LayoutList",
         label: "Dashboard",
         href: "/",
     },
