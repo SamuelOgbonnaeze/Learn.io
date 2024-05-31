@@ -5,29 +5,30 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react";
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 import axios from "axios";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { Pencil } from 'lucide-react';
 import { useRouter } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Pencil } from 'lucide-react';
+import { Textarea } from "@/components/ui/textarea";
 
-interface TitleFormProps {
+
+interface DescriptionFormProps {
     initialData: {
-        title: string;
-    };
-    courseId: string
+        description: string 
+    }
+    courseId: string;
 }
 
 const formSchema = z.object({
-    title: z.string().min(1, {
-        message: "Title is required"
+    description: z.string().min(1, {
+        message: "Description is required"
     }),
 })
 
-const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
+const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
 
@@ -44,7 +45,7 @@ const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
         try {
             console.log("Submitting values:", values); // Log the values to see what is being sent
             await axios.patch(`/api/courses/${courseId}`, values)
-            toast.success("Course updated")
+            toast.success("Course decription updated")
             toggleEdit();
             router.refresh()
         } catch (error) {
@@ -56,7 +57,7 @@ const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
     return (
         <div className="mt-6 border bg-slate-100 rounded-md p-4" >
             <div className="font-medium flex items-center justify-between">
-                Course title
+                Course description
                 <Button
                     className="flex items-center justify-between  "
                     variant="ghost"
@@ -68,7 +69,7 @@ const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
                     ) : (
                         <>
                             <Pencil className="h-4 w-4 mr-2" />
-                            Edit title
+                            Edit description
                         </>
                     )}
                 </Button>
@@ -76,8 +77,11 @@ const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
             </div>
 
             {!isEditing && (
-                <p className="text-sm mt-2">
-                    {initialData.title}
+                <p className={cn(
+                    "text-sm mt-2",
+                    !initialData.description && "text-slate-500 italic"
+                )}>
+                    {initialData.description ||"No description"}
                 </p>
             )}
             {isEditing && (
@@ -85,14 +89,14 @@ const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
                         <FormField
                             control={form.control}
-                            name="title"
+                            name="description"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input disabled={isSubmitting} placeholder="e.g Advanced web dev" {...field} />
+                                        <Textarea disabled={isSubmitting} placeholder="e.g 'This course is about ...'" {...field} />
                                     </FormControl>
                                     <FormDescription>
-                                        Edit your course title
+                                        Edit your course description
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -113,4 +117,4 @@ const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
     );
 }
 
-export default TitleForm;
+export default DescriptionForm;
