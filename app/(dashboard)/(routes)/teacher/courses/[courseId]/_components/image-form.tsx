@@ -1,20 +1,15 @@
 "use client"
 
 import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react";
-import { useForm } from "react-hook-form"
-import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { Course } from "@prisma/client";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { ImageIcon, Pencil, PlusCircle } from 'lucide-react';
-import { Textarea } from "@/components/ui/textarea";
-import { Course } from "@prisma/client";
 import { FileUpload } from "@/components/file-upload";
 
 
@@ -35,20 +30,13 @@ const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
 
     const toggleEdit = () => setIsEditing((current) => !current)
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            imageUrl: initialData?.imageUrl || "",
-        },
-    })
-
 
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
             console.log("Submitting values:", values); // Log the values to see what is being sent
             await axios.patch(`/api/courses/${courseId}`, values)
-            toast.success("Course decription updated")
+            toast.success("Course Image updated")
             toggleEdit();
             router.refresh()
         } catch (error) {
