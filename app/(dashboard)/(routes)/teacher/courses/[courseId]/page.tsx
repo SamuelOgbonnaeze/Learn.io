@@ -2,15 +2,14 @@ import { prismadb } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-import { LayoutList } from "lucide-react";
-import { ListChecks } from 'lucide-react';
-import { CircleDollarSign } from 'lucide-react';
+import { CircleDollarSign, LayoutList, ListChecks, File } from "lucide-react";
 import { IconBadge } from "@/components/icon-badge";
 import TitleForm from "./_components/title-form";
 import DescriptionForm from "./_components/description-form";
 import ImageForm from "./_components/image-form";
 import CategoryForm from "./_components/category-form";
 import PriceForm from "./_components/price-form";
+import AttachmentForm from "./_components/attachment-form";
 
 const CourseIdPage = async ({ params }:
     { params: { courseId: string } }
@@ -24,6 +23,13 @@ const CourseIdPage = async ({ params }:
     const course = await prismadb.course.findUnique({
         where: {
             id: params.courseId,
+        },
+        include: {
+            attachments:{
+                orderBy:{
+                    createdAt:"desc"
+                }
+            }
         }
     })
 
@@ -34,7 +40,7 @@ const CourseIdPage = async ({ params }:
     const categories = await prismadb.category.findMany({
         orderBy: {
             name: "asc"
-        }
+        },  
     })
 
 
@@ -62,6 +68,7 @@ const CourseIdPage = async ({ params }:
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2  gap-4 mt-16">
+                {/* Left side */}
                 <div>
                     <div className="flex items-center gap-x-2">
                         <IconBadge size="sm" variant="default" icon={LayoutList} />
@@ -77,6 +84,8 @@ const CourseIdPage = async ({ params }:
                         }))}
                     />
                 </div>
+
+                {/* Right side */}
                 <div className="space-y-6">
                     <div>
                         <div className="flex items-center gap-x-2">
@@ -89,10 +98,17 @@ const CourseIdPage = async ({ params }:
                     </div>
                     <div>
                         <div className="flex items-center gap-x-2">
-                        <IconBadge size="sm" variant="default" icon={CircleDollarSign} />
-                        <h3 className="text-xl">Price</h3>
+                            <IconBadge size="sm" variant="default" icon={CircleDollarSign} />
+                            <h2 className="text-xl">Price</h2>
                         </div>
                         <PriceForm initialData={course} courseId={course.id} />
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-x-2">
+                            <IconBadge size="sm" variant="default" icon={File} />
+                            <h2 className="text-xl">Resources & Attachments</h2>
+                        </div>
+                        <AttachmentForm initialData={course} courseId={course.id} />
                     </div>
                 </div>
             </div>
