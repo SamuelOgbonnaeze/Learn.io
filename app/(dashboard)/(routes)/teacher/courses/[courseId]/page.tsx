@@ -10,6 +10,7 @@ import ImageForm from "./_components/image-form";
 import CategoryForm from "./_components/category-form";
 import PriceForm from "./_components/price-form";
 import AttachmentForm from "./_components/attachment-form";
+import ChaptersForm from "./_components/chapters-form";
 
 const CourseIdPage = async ({ params }:
     { params: { courseId: string } }
@@ -23,11 +24,17 @@ const CourseIdPage = async ({ params }:
     const course = await prismadb.course.findUnique({
         where: {
             id: params.courseId,
+            userId,
         },
         include: {
-            attachments:{
-                orderBy:{
-                    createdAt:"desc"
+            chapters: {
+                orderBy: {
+                    position: "asc"
+                }
+            },
+            attachments: {
+                orderBy: {
+                    createdAt: "desc"
                 }
             }
         }
@@ -40,7 +47,7 @@ const CourseIdPage = async ({ params }:
     const categories = await prismadb.category.findMany({
         orderBy: {
             name: "asc"
-        },  
+        },
     })
 
 
@@ -50,6 +57,7 @@ const CourseIdPage = async ({ params }:
         course.imageUrl,
         course.price,
         course.categoryId,
+        course.chapters.some(chapter => chapter.isPublished)
     ];
 
     const totalFields = requiredFields.length;
@@ -93,7 +101,7 @@ const CourseIdPage = async ({ params }:
                             <h2 className="text-xl">Course Chapters</h2>
                         </div>
                         <div>
-                            TODO: CHAPTERS
+                            <ChaptersForm initialData={course} courseId={course.id} />
                         </div>
                     </div>
                     <div>
