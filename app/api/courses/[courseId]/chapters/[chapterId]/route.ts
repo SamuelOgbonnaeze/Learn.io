@@ -66,13 +66,13 @@ export async function PATCH(
             });
 
             await prismadb.muxData.create({
-                data:{
+                data: {
                     chapterId: params.chapterId,
                     assetId: asset.id,
-                    playbackId: asset.playback_ids?.[0]?.id 
+                    playbackId: asset.playback_ids?.[0]?.id
                 }
-            }); 
- 
+            });
+
         }
 
         return NextResponse.json(chapter)
@@ -81,3 +81,85 @@ export async function PATCH(
         return new NextResponse("Internal Error", { status: 500 })
     }
 }
+
+export async function DELETE(
+    req: Request,
+    { params }: { params: { courseId: string, chapterId: string } }
+) {
+    try {
+        const { userId } = auth();
+
+        if (!userId) {
+            return new NextResponse("Unauthorized", { status: 401 })
+        }
+
+        const ownCourse = await prismadb.course.findUnique({
+            where: {
+                id: params.courseId,
+                userId,
+            }
+        })
+
+        if (!ownCourse) {
+            return new NextResponse("Unauthorized", { status: 401 })
+        }
+
+        const chapter = await prismadb.chapter.findUnique({
+            where: {
+                id: params.chapterId,
+                courseId: params.courseId
+            },
+        })
+
+        if (!chapter) {
+            return new NextResponse("Not found", { status: 404 })
+        }
+
+        if (chapter.videoUrl) {
+            const existingMuxData = await prismadb.muxData.findFirst({
+                where: {
+                    chapterId: params.chapterId,
+                }
+            })
+
+            if (existingMuxData) {
+                await mux.video.assets.delete(existingMuxData.assetId);
+                await prismadb.muxData.delete({
+                    where: {
+                        id: existingMuxData.id
+                    }
+                })
+            }
+        }
+
+        const deletedChapter = await prismadb.chapter.delete({
+            where: {
+                id: params.chapterId,
+            }
+        })
+
+        const publishedChaptersInCourse = await prismadb.chapter.findMany({
+            where: {
+                courseId: params.courseId,
+                isPublished: true,
+            }
+        })
+
+        if (!publishedChaptersInCourse.length) {
+            await prismadb.course.update({
+                where: {
+                    id: params.courseId
+                },
+                data: {
+                    isPublished: false,
+                }
+            })
+        }
+
+        return NextResponse.json(deletedChapter); 
+    } catch (error) {
+        console.log("CHAPTER_ID", error)
+        return new NextResponse("Internal Error", { status: 500 })
+    }
+}
+
