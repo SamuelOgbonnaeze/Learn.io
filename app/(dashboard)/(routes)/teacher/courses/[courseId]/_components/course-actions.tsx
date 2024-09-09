@@ -1,22 +1,21 @@
 "use client"
 
-import axios from "axios";
-import toast from "react-hot-toast";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { Trash } from "lucide-react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/modals/confirm-modal";
 
-interface ChapterActionsProps {
+interface CourseActionsProps {
     disabled: boolean;
     courseId: string;
-    chapterId: string;
     isPublished: boolean;
 }
 
-export const ChapterActions = ({ disabled, courseId, chapterId, isPublished }: ChapterActionsProps) => {
+export const CourseActions = ({ disabled, courseId, isPublished }: CourseActionsProps) => {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
 
@@ -25,11 +24,11 @@ export const ChapterActions = ({ disabled, courseId, chapterId, isPublished }: C
             setIsLoading(true)
 
             if (isPublished) {
-                await axios.patch(`/api/courses/${courseId}/chapters/${chapterId}/unpublish`)
-                toast.success("Chapter unpublished")
+                await axios.patch(`/api/courses/${courseId}/unpublish`)
+                toast.success("Course unpublished")
             } else {
-                await axios.patch(`/api/courses/${courseId}/chapters/${chapterId}/publish`)
-                toast.success("Chapter published")
+                await axios.patch(`/api/courses/${courseId}/publish`)
+                toast.success("Course published")
             }
 
             router.refresh()
@@ -44,10 +43,10 @@ export const ChapterActions = ({ disabled, courseId, chapterId, isPublished }: C
         try {
             setIsLoading(true);
 
-            await axios.delete(`/api/courses/${courseId}/chapters/${chapterId}`);
-            toast.success("Chapter deleted")
+            await axios.delete(`/api/courses/${courseId}`);
+            toast.success("Course deleted")
             router.refresh()
-            router.push(`/teacher/courses/${courseId}`)
+            router.push(`/teacher/courses`)
         } catch {
             toast.error("Something went wrong")
         } finally {
@@ -67,7 +66,7 @@ export const ChapterActions = ({ disabled, courseId, chapterId, isPublished }: C
             </Button>
             <ConfirmModal onConfirm={onDelete}>
                 <Button
-                    disabled={isLoading}
+                    disabled={disabled || isLoading}
                     variant="destructive"
                     size="sm"
                 >

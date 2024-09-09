@@ -82,10 +82,11 @@ const ChapterVideoForm = ({ initialData, courseId, chapterId }: ChapterVideoForm
                     </div>
                 ) : (
                     <div className="relative aspect-video mt-2 rounded-md ">
-                        <MuxPlayer
+                        chapter video uploaded
+                        {/* <MuxPlayer
                             playbackId={initialData?.muxData?.playbackId || ""}
                             className="h-[300px]"
-                        />
+                        /> */}
                     </div>
                 )
             )}
